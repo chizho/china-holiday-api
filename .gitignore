@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# 环境变量
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# AI 工作台私有数据（与项目无关）
+.workbuddy/
+
+# OpenAPI 生成产物（可通过 generate_openapi.py 重新生成）
+public-china-holiday-*.json
+
+# 假日数据缓存（运行时自动从 CDN 拉取，无需入库）
+app/data/holidays/*.json
+
+# 原始单文件项目
+China Public Holiday API/
+
+# Vercel
+.vercel/

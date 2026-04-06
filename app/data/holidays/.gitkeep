@@ -1,0 +1,2 @@
+# 此文件用于占位目录，确保 app/data/holidays/ 目录被 git 跟踪
+# 实际的 JSON 缓存文件通过 .gitignore 排除

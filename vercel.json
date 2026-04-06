@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/**/*.py": {
+      "excludeFiles": "{tests/**,__tests__/**,**/*.test.py,**/test_*.py,_test_all.py,generate_openapi.py,.env.example,Procfile,run.py,app/scripts/**}"
+    }
+  }
+}
