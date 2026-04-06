@@ -53,8 +53,8 @@ def create_app() -> FastAPI:
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     # -- CORS 中间件（跨域支持）
-    # 生产环境限制来源为 RapidAPI，开发环境允许所有来源（Swagger UI 调试）
-    cors_origins = ["*"] if settings.DEBUG else ["https://rapidapi.com"]
+    # 允许所有来源（RapidAPI 网关 + 浏览器直接测试）
+    cors_origins = ["*"]
     app.add_middleware(
         CORSMiddleware,
         allow_origins=cors_origins,
