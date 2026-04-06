@@ -5,16 +5,13 @@
 """
 import uvicorn
 
-from app.main import create_app
 from app.core.config import settings
-
-# Vercel 要求顶级暴露 app 对象，避免扫描报错
-app = create_app()
 
 
 if __name__ == "__main__":
     uvicorn.run(
-        "run:app",
+        "app.main:create_app",
+        factory=True,  # 使用工厂模式加载应用
         host=settings.HOST,
         port=settings.PORT,
         reload=settings.DEBUG,  # 开发环境自动重载
