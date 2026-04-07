@@ -1,0 +1,903 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "China Public Holiday & Multilingual Calendar API",
+    "description": "Provides China mainland public holidays, workdays, lunar calendar, Chinese zodiac, constellations, Heavenly Stems and Earthly Branches, Chinese Almanac, and 24 Solar Terms query services. Supports 8 languages output (zh/en/ja/ko/vi/es/fr/de).\n\n## Features\n- **Public Holidays**: Official Chinese public holidays from State Council announcements, auto-updated yearly\n- **Lunar Calendar**: Gregorian to Lunar date conversion with full Chinese calendar details\n- **Chinese Zodiac & Constellation**: Year zodiac, western constellation with element/ruler info\n- **Heavenly Stems & Earthly Branches**: Year/Month/Day pillars with Nayin (Five Elements sound)\n- **Chinese Almanac**: Complete daily almanac including Yi/Ji, Chong/Sha, Taisen, Pengzu, Jishen/Xiongsha, Zhixing, positions\n- **24 Solar Terms**: Full year solar term list and current term query\n- **Workday Calculator**: Check workday status, calculate workdays between dates, predict target dates\n- **8 Languages**: All APIs support multilingual output via `lang` parameter",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://china-holiday-api.vercel.app",
+      "description": "Production"
+    }
+  ],
+  "tags": [
+    {
+      "name": "System",
+      "description": "System health check (no authentication required)",
+      "x-displayName": "系统接口"
+    },
+    {
+      "name": "Date",
+      "description": "Comprehensive date query (Lunar + Zodiac + Constellation + GanZhi + Almanac + Solar Term)",
+      "x-displayName": "日期综合查询"
+    },
+    {
+      "name": "Holiday",
+      "description": "China public holiday query and management",
+      "x-displayName": "假日查询"
+    },
+    {
+      "name": "Workday",
+      "description": "Workday check and calculation",
+      "x-displayName": "工作日计算"
+    },
+    {
+      "name": "Solar Term",
+      "description": "24 Solar Terms query",
+      "x-displayName": "节气查询"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["System"],
+        "operationId": "healthCheck",
+        "summary": "Health Check",
+        "description": "Service health check for monitoring and RapidAPI health probe. No authentication required.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["code", "message", "data"],
+                  "properties": {
+                    "code": {"type": "integer", "description": "Status code, 200 = success", "example": 200},
+                    "message": {"type": "string", "description": "Status message", "example": "success"},
+                    "data": {
+                      "type": "object",
+                      "required": ["status", "version"],
+                      "properties": {
+                        "status": {"type": "string", "description": "Service status", "example": "ok"},
+                        "version": {"type": "string", "description": "API version", "example": "1.0.0"}
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {"status": "ok", "version": "1.0.0"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public-china-holiday/date": {
+      "get": {
+        "tags": ["Date"],
+        "operationId": "dateInfo",
+        "summary": "Comprehensive Date Query",
+        "x-summary": "日期综合查询（农历/生肖/星座/黄历/节气）",
+        "description": "Input a Gregorian date and get complete Chinese calendar information including Lunar date, Chinese Zodiac, Constellation, Heavenly Stems & Earthly Branches, Chinese Almanac, and Solar Terms. Supports 8 languages via `lang` parameter.",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "description": "Gregorian date in YYYY-MM-DD format",
+            "example": "2025-10-01"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Successful response with complete date information",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/DateInfoApiResponse"},
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "solar_year": 2025,
+                    "solar_month": 10,
+                    "solar_day": 1,
+                    "lunar_year": 2025,
+                    "lunar_month": 8,
+                    "lunar_day": 9,
+                    "lunar_month_cn": "八月",
+                    "lunar_day_cn": "初九",
+                    "lunar_date_cn": "乙巳年八月初九",
+                    "shengxiao": "蛇",
+                    "shengxiao_emoji": "🐍",
+                    "xingzuo": {
+                      "name": "天秤座",
+                      "name_en": "Libra",
+                      "date_range": "9.23-10.23",
+                      "element": "风象",
+                      "ruler": "金星"
+                    },
+                    "year_ganzhi": {"ganzhi": "乙巳", "gan": "乙", "zhi": "巳", "nayin": "佛灯火"},
+                    "month_ganzhi": {"ganzhi": "乙酉", "gan": "乙", "zhi": "酉", "nayin": "泉中水"},
+                    "day_ganzhi": {"ganzhi": "丁丑", "gan": "丁", "zhi": "丑", "nayin": "涧下水"},
+                    "almanac": {
+                      "yi": ["祭祀", "出行", "冠笄", "嫁娶"],
+                      "ji": ["开市", "动土", "破土"],
+                      "chong_gan": "辛",
+                      "chong_zhi": "未",
+                      "chong_shengxiao": "羊",
+                      "chong_desc": "(辛未)羊",
+                      "sha": "东",
+                      "taishen": "占门碓外东南",
+                      "wuxing_nayin": "天河水",
+                      "pengzu": "丁不剃头头必生疮，丑不冠带主不还乡",
+                      "jishen": ["天德", "月德", "天恩"],
+                      "xiongsha": ["月破", "大耗"],
+                      "zhixing": "建",
+                      "tianshen": "玄武",
+                      "tianshen_type": "黑道",
+                      "position_cai": "正东",
+                      "position_xi": "西南",
+                      "position_fu": "西北",
+                      "position_yanggui": "正北",
+                      "position_yingui": "东南",
+                      "liuyao": "先胜",
+                      "wuhou": "鸿雁来宾",
+                      "xiu": "室",
+                      "xiu_luck": "吉"
+                    },
+                    "solar_term_prev": {"name": "秋分", "date": "2025-09-23", "is_jie": true},
+                    "solar_term_next": {"name": "寒露", "date": "2025-10-08", "is_jie": false},
+                    "solar_term_current": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/holiday/query": {
+      "get": {
+        "tags": ["Holiday"],
+        "operationId": "queryHoliday",
+        "summary": "Query Holiday Info for a Specific Date",
+        "x-summary": "查询指定日期假日信息",
+        "description": "Input a date and get whether it's a public holiday, holiday name, and workday status (including adjusted workdays). Supports 8 languages.",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "description": "Query date in YYYY-MM-DD format",
+            "example": "2025-10-01"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Holiday information for the specified date",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/HolidayInfoApiResponse"},
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "date": "2025-10-01",
+                    "is_holiday": true,
+                    "is_workday": false,
+                    "name": "国庆节、中秋节"
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/holiday/list": {
+      "get": {
+        "tags": ["Holiday"],
+        "operationId": "listHolidays",
+        "summary": "Get Annual Holiday List",
+        "x-summary": "获取年度假日列表",
+        "description": "Returns all public holidays and adjusted workdays for a specified year. Supports 8 languages.",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "integer", "minimum": 1900, "maximum": 2100},
+            "description": "Year (1900-2100)",
+            "example": 2025
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "integer", "minimum": 1, "maximum": 12},
+            "description": "Optional month filter (1-12), omit for full year",
+            "example": 10
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Annual holiday list",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/HolidayListApiResponse"},
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "total": 28,
+                    "year": 2025,
+                    "month": null,
+                    "holidays": [
+                      {"date": "2025-01-01", "name": "元旦"},
+                      {"date": "2025-01-28", "name": "春节"},
+                      {"date": "2025-10-01", "name": "国庆节、中秋节"}
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/holiday/refresh": {
+      "post": {
+        "tags": ["Holiday"],
+        "operationId": "refreshHolidays",
+        "summary": "Refresh Holiday Cache (Admin Only)",
+        "x-summary": "刷新假日缓存（仅管理员）",
+        "description": "⚠️ **Admin only** — This endpoint is NOT intended for public use.\n\nRe-fetch holiday data from the remote data source (GitHub CDN) and update the local cache. Requires both:\n1. Valid `X-RapidAPI-Key` header (RapidAPI subscription key)\n2. Valid `admin_token` query parameter (environment-level admin credential)\n\nThis endpoint is typically called by the API maintainer or via automated cron jobs to keep holiday data up-to-date when new year's data is published by the State Council.",
+        "parameters": [
+          {
+            "name": "admin_token",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string"},
+            "description": "Admin token for authorization (set via ADMIN_TOKEN environment variable)",
+            "example": "your-admin-token"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Cache refreshed successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "message": "假日数据刷新成功",
+                  "data": {"refreshed": true}
+                }
+              }
+            }
+          },
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "403": {"$ref": "#/components/responses/Forbidden"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/workday": {
+      "get": {
+        "tags": ["Workday"],
+        "operationId": "checkWorkday",
+        "summary": "Check if a Date is a Workday",
+        "x-summary": "判断指定日期是否为工作日",
+        "description": "Input a date and get whether it's a workday and the reason (holiday, weekend, adjusted workday, etc.). Supports 8 languages.",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "description": "Date in YYYY-MM-DD format",
+            "example": "2025-10-01"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Workday check result",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/WorkdayCheckApiResponse"},
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "date": "2025-10-01",
+                    "is_workday": false,
+                    "reason": "国庆节、中秋节"
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/workday/calculate": {
+      "get": {
+        "tags": ["Workday"],
+        "operationId": "calculateWorkday",
+        "summary": "Workday Calculation",
+        "x-summary": "工作日推算与计数",
+        "description": "Calculate workdays with two mutually exclusive modes:\n\n1. **Predict Mode** (provide `workdays`): From `start_date`, calculate the target date after N workdays. Positive `workdays` = future, negative = past.\n2. **Count Mode** (provide `end_date`): Count the number of workdays between `start_date` and `end_date` (inclusive).\n\n> ⚠️ **You MUST choose exactly one mode** — either `workdays` or `end_date`, but NOT both.\n\nSupports 8 languages.",
+        "parameters": [
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "description": "Start date in YYYY-MM-DD format",
+            "example": "2025-09-28"
+          },
+          {
+            "name": "workdays",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "integer", "minimum": -10000, "maximum": 10000},
+            "description": "Predict mode: number of workdays to add (positive=future, negative=past). Use this OR end_date, not both.",
+            "example": 5
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "description": "Count mode: end date in YYYY-MM-DD format (max span 36500 days). Use this OR workdays, not both.",
+            "example": "2025-10-31"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Workday calculation result",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/WorkdayCalcApiResponse"},
+                "examples": {
+                  "predict_mode": {
+                    "summary": "Predict Mode: Find target date after N workdays",
+                    "value": {
+                      "code": 200,
+                      "message": "success",
+                      "data": {
+                        "start_date": "2025-09-28",
+                        "end_date": "2025-10-10",
+                        "workdays": 5
+                      }
+                    }
+                  },
+                  "count_mode": {
+                    "summary": "Count Mode: Count workdays between two dates",
+                    "value": {
+                      "code": 200,
+                      "message": "success",
+                      "data": {
+                        "start_date": "2025-10-01",
+                        "end_date": "2025-10-31",
+                        "workdays": 18,
+                        "total_days": 31
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "404": {"$ref": "#/components/responses/NotFound"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/solar-term/list": {
+      "get": {
+        "tags": ["Solar Term"],
+        "operationId": "listSolarTerms",
+        "summary": "Get 24 Solar Terms List",
+        "x-summary": "获取二十四节气列表",
+        "description": "Returns all 24 solar terms for a specified year with names, dates, and types (Jie/Qi). Supports 8 languages.",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "integer", "minimum": 1900, "maximum": 2100},
+            "description": "Year (1900-2100)",
+            "example": 2025
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Annual solar terms list",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SolarTermListApiResponse"},
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "year": 2025,
+                    "terms": [
+                      {"name": "小寒", "date": "2025-01-05", "is_jie": false},
+                      {"name": "大寒", "date": "2025-01-20", "is_jie": true},
+                      {"name": "立春", "date": "2025-02-03", "is_jie": false}
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    },
+    "/public-china-holiday/solar-term/current": {
+      "get": {
+        "tags": ["Solar Term"],
+        "operationId": "currentSolarTerm",
+        "summary": "Query Current Solar Term Info",
+        "x-summary": "查询当前/最近的节气信息",
+        "description": "Returns the previous and next solar terms for a given date, and whether the date itself is a solar term. Supports 8 languages.",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+            "description": "Date in YYYY-MM-DD format",
+            "example": "2025-10-08"
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {"type": "string", "enum": ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"], "default": "zh"},
+            "description": "Output language code (zh=Chinese, en=English, ja=Japanese, ko=Korean, vi=Vietnamese, es=Spanish, fr=French, de=German)",
+            "example": "zh"
+          }
+        ],
+        "security": [{"ApiKeyAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Current solar term information",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/SolarTermCurrentApiResponse"},
+                "example": {
+                  "code": 200,
+                  "message": "success",
+                  "data": {
+                    "date": "2025-10-08",
+                    "prev": {"name": "秋分", "date": "2025-09-23", "is_jie": true},
+                    "next": {"name": "霜降", "date": "2025-10-23", "is_jie": true},
+                    "current": {"name": "寒露", "date": "2025-10-08", "is_jie": false}
+                  }
+                }
+              }
+            }
+          },
+          "400": {"$ref": "#/components/responses/BadRequest"},
+          "401": {"$ref": "#/components/responses/Unauthorized"},
+          "500": {"$ref": "#/components/responses/InternalError"}
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-RapidAPI-Key",
+        "description": "RapidAPI subscription key. Subscribe at https://rapidapi.com to obtain your key."
+      }
+    },
+    "schemas": {
+      "ApiResponseBase": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {"type": "integer", "description": "Status code (200=success, 400=bad request, 401=unauthorized, 403=forbidden, 404=not found, 500=server error)", "example": 200},
+          "message": {"type": "string", "description": "Status message (localized based on `lang` parameter)", "example": "success"},
+          "data": {"description": "Response payload. Present on success, `null` on error."}
+        }
+      },
+      "GanZhiDetail": {
+        "type": "object",
+        "required": ["ganzhi", "gan", "zhi", "nayin"],
+        "description": "Heavenly Stems & Earthly Branches (干支) detail for a specific time pillar (year/month/day)",
+        "properties": {
+          "ganzhi": {"type": "string", "description": "GanZhi combination (e.g. 乙巳)", "example": "乙巳"},
+          "gan": {"type": "string", "description": "Heavenly Stem (天干)", "example": "乙"},
+          "zhi": {"type": "string", "description": "Earthly Branch (地支)", "example": "巳"},
+          "nayin": {"type": "string", "description": "Nayin / Five Elements sound (纳音五行). NOT translated in multilingual mode.", "example": "佛灯火"}
+        }
+      },
+      "XingzuoDetail": {
+        "type": "object",
+        "required": ["name", "name_en", "date_range", "element", "ruler"],
+        "description": "Western constellation (星座) detail",
+        "properties": {
+          "name": {"type": "string", "description": "Chinese constellation name (localized)", "example": "天秤座"},
+          "name_en": {"type": "string", "description": "English constellation name", "example": "Libra"},
+          "date_range": {"type": "string", "description": "Date range for this constellation", "example": "9.23-10.23"},
+          "element": {"type": "string", "description": "Element group (火象/土象/风象/水象, localized)", "example": "风象"},
+          "ruler": {"type": "string", "description": "Ruling planet (守护星, localized)", "example": "金星"}
+        }
+      },
+      "AlmanacDetail": {
+        "type": "object",
+        "required": ["yi", "ji", "chong_desc", "sha"],
+        "description": "Chinese Almanac / Huangli (黄历) daily detail",
+        "properties": {
+          "yi": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Auspicious activities (宜, localized for zh/ja/ko/vi; original Chinese for en/es/fr/de)",
+            "example": ["祭祀", "出行"]
+          },
+          "ji": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Inauspicious activities (忌, localized for zh/ja/ko/vi; original Chinese for en/es/fr/de)",
+            "example": ["开市", "动土"]
+          },
+          "chong_gan": {"type": "string", "description": "Clash Heavenly Stem (冲天干)"},
+          "chong_zhi": {"type": "string", "description": "Clash Earthly Branch (冲地支)"},
+          "chong_shengxiao": {"type": "string", "description": "Clash Chinese Zodiac sign (冲生肖)"},
+          "chong_desc": {"type": "string", "description": "Clash description combining stem, branch and zodiac", "example": "(辛未)羊"},
+          "sha": {"type": "string", "description": "Sha direction (煞方)", "example": "东"},
+          "taishen": {"type": "string", "description": "Fetal God position (胎神方位). NOT translated."},
+          "wuxing_nayin": {"type": "string", "description": "Day's Five Elements Nayin (日五行纳音). NOT translated."},
+          "pengzu": {"type": "string", "description": "Pengzu's taboos (彭祖百忌). NOT translated."},
+          "jishen": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Auspicious deities (吉神, localized for zh/ja/ko/vi; original Chinese for others)",
+            "example": ["天德", "月德"]
+          },
+          "xiongsha": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Inauspicious spirits (凶煞, localized for zh/ja/ko/vi; original Chinese for others)",
+            "example": ["月破"]
+          },
+          "zhixing": {"type": "string", "description": "12 Star phases (建除十二神值星, localized)", "example": "建"},
+          "tianshen": {"type": "string", "description": "Day guardian deity (值日天神, localized)", "example": "玄武"},
+          "tianshen_type": {"type": "string", "description": "Deity path type: 黑道(inauspicious) or 黄道(auspicious)", "example": "黑道"},
+          "position_cai": {"type": "string", "description": "Wealth God direction (财神方位, localized)", "example": "正东"},
+          "position_xi": {"type": "string", "description": "Happiness God direction (喜神方位, localized)", "example": "西南"},
+          "position_fu": {"type": "string", "description": "Fortune God direction (福神方位, localized)", "example": "西北"},
+          "position_yanggui": {"type": "string", "description": "Yang Noble direction (阳贵方位, localized)", "example": "正北"},
+          "position_yingui": {"type": "string", "description": "Yin Noble direction (阴贵方位, localized)", "example": "东南"},
+          "liuyao": {"type": "string", "description": "Six Yao (六曜, localized for ja; original Chinese for others)", "example": "先胜"},
+          "wuhou": {"type": "string", "description": "72 Pentads (七十二候, original Chinese)", "example": "鸿雁来宾"},
+          "xiu": {"type": "string", "description": "28 Mansions (二十八星宿, original Chinese)", "example": "室"},
+          "xiu_luck": {"type": "string", "description": "Mansion luck: 吉(auspicious) or 凶(inauspicious)", "example": "吉"}
+        }
+      },
+      "SolarTermItem": {
+        "type": "object",
+        "required": ["name", "date", "is_jie"],
+        "description": "Single solar term item",
+        "properties": {
+          "name": {"type": "string", "description": "Solar term name (localized)", "example": "寒露"},
+          "date": {"type": "string", "description": "Solar term date in YYYY-MM-DD", "example": "2025-10-08"},
+          "is_jie": {"type": "boolean", "description": "Type: true=Jie (节气, term start), false=Qi (中气, middle qi)"}
+        }
+      },
+      "DateInfoData": {
+        "type": "object",
+        "required": ["solar_year", "solar_month", "solar_day", "lunar_year", "lunar_month", "lunar_day", "shengxiao"],
+        "description": "Comprehensive date information combining Gregorian, Lunar, Zodiac, GanZhi, Almanac and Solar Term data",
+        "properties": {
+          "solar_year": {"type": "integer", "description": "Gregorian year", "example": 2025},
+          "solar_month": {"type": "integer", "description": "Gregorian month (1-12)", "example": 10},
+          "solar_day": {"type": "integer", "description": "Gregorian day", "example": 1},
+          "lunar_year": {"type": "integer", "description": "Lunar year", "example": 2025},
+          "lunar_month": {
+            "type": "integer",
+            "description": "Lunar month number (1-12). For leap months, the value is month + 10 (e.g. leap 8th month = 18). Always positive. Use `lunar_month_cn` for display.",
+            "example": 8
+          },
+          "lunar_day": {"type": "integer", "description": "Lunar day number (1-30)", "example": 9},
+          "lunar_month_cn": {"type": "string", "description": "Lunar month in Chinese (localized)", "example": "八月"},
+          "lunar_day_cn": {"type": "string", "description": "Lunar day in Chinese (localized)", "example": "初九"},
+          "lunar_date_cn": {"type": "string", "description": "Full lunar date string in Chinese (localized)", "example": "乙巳年八月初九"},
+          "shengxiao": {"type": "string", "description": "Chinese Zodiac sign for the lunar year (localized)", "example": "蛇"},
+          "shengxiao_emoji": {"type": "string", "description": "Zodiac emoji", "example": "🐍"},
+          "xingzuo": {"$ref": "#/components/schemas/XingzuoDetail"},
+          "year_ganzhi": {"$ref": "#/components/schemas/GanZhiDetail"},
+          "month_ganzhi": {"$ref": "#/components/schemas/GanZhiDetail"},
+          "day_ganzhi": {"$ref": "#/components/schemas/GanZhiDetail"},
+          "almanac": {"$ref": "#/components/schemas/AlmanacDetail"},
+          "solar_term_prev": {"$ref": "#/components/schemas/SolarTermItem"},
+          "solar_term_next": {"$ref": "#/components/schemas/SolarTermItem"},
+          "solar_term_current": {"$ref": "#/components/schemas/SolarTermItem"}
+        }
+      },
+      "HolidayInfoData": {
+        "type": "object",
+        "required": ["date", "is_holiday", "is_workday", "name"],
+        "description": "Holiday information for a specific date",
+        "properties": {
+          "date": {"type": "string", "description": "Queried date in YYYY-MM-DD", "example": "2025-10-01"},
+          "is_holiday": {"type": "boolean", "description": "Whether the date is a public holiday (true) or not (false)", "example": true},
+          "is_workday": {"type": "boolean", "description": "Whether the date is a workday. Note: adjusted workdays (调休上班) return `true` even on weekends.", "example": false},
+          "name": {"type": "string", "description": "Holiday name (localized). Empty string if not a holiday.", "example": "国庆节、中秋节"}
+        }
+      },
+      "HolidayListItem": {
+        "type": "object",
+        "required": ["date", "name"],
+        "description": "Single holiday entry in the annual list",
+        "properties": {
+          "date": {"type": "string", "description": "Holiday date in YYYY-MM-DD", "example": "2025-01-01"},
+          "name": {"type": "string", "description": "Holiday name (localized)", "example": "元旦"}
+        }
+      },
+      "HolidayListData": {
+        "type": "object",
+        "required": ["total", "year", "holidays"],
+        "description": "Annual holiday list response data",
+        "properties": {
+          "total": {"type": "integer", "description": "Total number of holiday days in the result", "example": 28},
+          "year": {"type": "integer", "description": "Queried year", "example": 2025},
+          "month": {"type": "integer", "nullable": true, "description": "Filtered month (1-12), or `null` for full year query", "example": null},
+          "holidays": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/HolidayListItem"},
+            "description": "Holiday entries sorted by date ascending"
+          }
+        }
+      },
+      "WorkdayCheckData": {
+        "type": "object",
+        "required": ["date", "is_workday", "reason"],
+        "description": "Workday check result for a single date",
+        "properties": {
+          "date": {"type": "string", "description": "Queried date in YYYY-MM-DD", "example": "2025-10-01"},
+          "is_workday": {"type": "boolean", "description": "Whether the date is a workday (true) or not (false)", "example": false},
+          "reason": {"type": "string", "description": "Reason for workday status. Includes holiday names, adjusted workday notices, or weekend/normal workday labels. Localized based on `lang`.", "example": "国庆节、中秋节"}
+        }
+      },
+      "WorkdayCalcData": {
+        "type": "object",
+        "required": ["start_date", "end_date", "workdays"],
+        "description": "Workday calculation result",
+        "properties": {
+          "start_date": {"type": "string", "description": "Start date in YYYY-MM-DD", "example": "2025-09-28"},
+          "end_date": {"type": "string", "description": "End date / target date in YYYY-MM-DD", "example": "2025-10-10"},
+          "workdays": {"type": "integer", "description": "Number of workdays (positive only)", "example": 5},
+          "total_days": {"type": "integer", "nullable": true, "description": "Total calendar days between start and end (inclusive). Only present in Count mode.", "example": 31}
+        }
+      },
+      "SolarTermListData": {
+        "type": "object",
+        "required": ["year", "terms"],
+        "description": "Annual solar terms list data",
+        "properties": {
+          "year": {"type": "integer", "description": "Queried year", "example": 2025},
+          "terms": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/SolarTermItem"},
+            "description": "All 24 solar terms sorted by date ascending"
+          }
+        }
+      },
+      "SolarTermCurrentData": {
+        "type": "object",
+        "required": ["date", "prev", "next", "current"],
+        "description": "Current/nearby solar term information for a date",
+        "properties": {
+          "date": {"type": "string", "description": "Queried date in YYYY-MM-DD", "example": "2025-10-08"},
+          "prev": {"$ref": "#/components/schemas/SolarTermItem"},
+          "next": {"$ref": "#/components/schemas/SolarTermItem"},
+          "current": {"$ref": "#/components/schemas/SolarTermItem"}
+        }
+      },
+      "DateInfoApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/DateInfoData"}}}
+        ]
+      },
+      "HolidayInfoApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/HolidayInfoData"}}}
+        ]
+      },
+      "HolidayListApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/HolidayListData"}}}
+        ]
+      },
+      "WorkdayCheckApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/WorkdayCheckData"}}}
+        ]
+      },
+      "WorkdayCalcApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/WorkdayCalcData"}}}
+        ]
+      },
+      "SolarTermListApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/SolarTermListData"}}}
+        ]
+      },
+      "SolarTermCurrentApiResponse": {
+        "allOf": [
+          {"$ref": "#/components/schemas/ApiResponseBase"},
+          {"type": "object", "required": ["data"], "properties": {"data": {"$ref": "#/components/schemas/SolarTermCurrentData"}}}
+        ]
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad Request - Invalid parameters (e.g. wrong date format, out-of-range year)",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/ApiResponseBase"},
+            "example": {
+              "code": 400,
+              "message": "日期格式错误，请使用 YYYY-MM-DD 格式，当前值: 2025/10/01",
+              "data": null
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - Missing `X-RapidAPI-Key` header or invalid API key. Obtain your key from RapidAPI subscription.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/ApiResponseBase"},
+            "example": {
+              "code": 401,
+              "message": "未提供鉴权凭证",
+              "data": null
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden - Insufficient permissions (e.g. invalid admin_token for /refresh, or endpoint restricted to development environment)",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/ApiResponseBase"},
+            "example": {
+              "code": 403,
+              "message": "该接口仅限开发环境使用",
+              "data": null
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not Found - Requested data is not available (e.g. holiday data for a future year not yet published by State Council)",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/ApiResponseBase"},
+            "example": {
+              "code": 404,
+              "message": "2030年假日数据暂未发布",
+              "data": null
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal Server Error - Unexpected server-side failure. Please retry or contact support if persistent.",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/ApiResponseBase"},
+            "example": {
+              "code": 500,
+              "message": "服务器内部错误",
+              "data": null
+            }
+          }
+        }
+      }
+    }
+  }
+}

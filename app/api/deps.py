@@ -27,8 +27,8 @@ async def verify_rapidapi_request(request: Request) -> JSONResponse | None:
     """
     secret = settings.RAPIDAPI_PROXY_SECRET
 
-    # 未配置密钥 = 开发模式，跳过验证
-    if not secret:
+    # 未配置密钥 或 DEBUG 模式 = 跳过验证
+    if not secret or settings.DEBUG:
         return None
 
     proxy_secret = request.headers.get("X-RapidAPI-Proxy-Secret")

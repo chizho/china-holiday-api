@@ -86,9 +86,10 @@ def _translate_date_info(data: dict, lang: str) -> dict:
     # -- 生肖
     result["shengxiao"] = t(data.get("shengxiao", ""), lang)
 
-    # -- 星座（已有 name_en，其他元素/守护星需要翻译）
+    # -- 星座（非中文语言：name 用多语言翻译，element/ruler 翻译，name_en 保留）
     if "xingzuo" in result and isinstance(result["xingzuo"], dict):
         xz = dict(result["xingzuo"])
+        xz["name"] = t(xz.get("name", ""), lang)  # 星座名（zh保留中文，其他语言取词典翻译）
         xz["element"] = t(xz.get("element", ""), lang)
         xz["ruler"] = t(xz.get("ruler", ""), lang)
         result["xingzuo"] = xz
@@ -101,9 +102,12 @@ def _translate_date_info(data: dict, lang: str) -> dict:
         alm["sha"] = t(alm.get("sha", ""), lang)
         alm["zhixing"] = t(alm.get("zhixing", ""), lang)
         alm["tianshen_type"] = t(alm.get("tianshen_type", ""), lang)
+        alm["liuyao"] = t(alm.get("liuyao", ""), lang)         # 六曜 (L2 东亚)
+        alm["tianshen"] = t(alm.get("tianshen", ""), lang)     # 值日天神 (L2 东亚)
+        alm["xiu_luck"] = t(alm.get("xiu_luck", ""), lang)     # 吉/凶 (L1)
         # -- 方位：翻译关键词
         _translate_positions(alm, lang)
-        # L3 不翻译: chong_*, taishen, wuxing_nayin, pengzu, jishen, xiongsha, tianshen, liuyao, wuhou, xiu, xiu_luck
+        # L3 不翻译: chong_*, taishen, wuxing_nayin, pengzu, jishen, xiongsha, wuhou, xiu
         result["almanac"] = alm
 
     # -- 节气
@@ -158,7 +162,7 @@ def _translate_holiday_info(data: dict, lang: str) -> dict:
     name = data.get("name", "")
     # 支持顿号分隔的复合假日名（如"国庆节、中秋节"）
     if "、" in name:
-        sep = ", " if lang == "en" else "、"
+        sep = "、" if lang == "zh" else ", "  # 非中文语言统一用英文逗号
         translated_name = sep.join(t(n.strip(), lang) for n in name.split("、"))
     else:
         translated_name = t(name, lang)
@@ -172,7 +176,7 @@ def _translate_holiday_list(data: dict, lang: str) -> dict:
         name = h.get("name", "")
         # 支持顿号分隔的复合假日名
         if "、" in name:
-            sep = ", " if lang == "en" else "、"
+            sep = "、" if lang == "zh" else ", "  # 非中文语言统一用英文逗号
             translated_name = sep.join(t(n.strip(), lang) for n in name.split("、"))
         else:
             translated_name = t(name, lang)
@@ -191,7 +195,7 @@ def _translate_workday_check(data: dict, lang: str) -> dict:
         holiday_part = translated_reason.split("法定假日-", 1)[1]
         # 假日名可能是顿号分隔的多个（如"国庆节、中秋节"）
         names = [n.strip() for n in holiday_part.split("、")]
-        sep = "," if lang == "en" else "、"
+        sep = "、" if lang == "zh" else ", "  # 非中文语言统一用英文逗号
         translated_names = [t(n, lang) for n in names]
         translated_reason = f"{prefix}-{sep.join(translated_names)}"
     else:
