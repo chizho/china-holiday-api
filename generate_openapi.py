@@ -69,7 +69,9 @@ I18N_PATHS = {
         "description": (
             "Returns comprehensive Chinese calendar information for a given date, "
             "including lunar date, zodiac, constellation, Heavenly Stems & Earthly Branches, "
-            "Tung Shing almanac, and solar terms. Supports lang parameter for output language."
+            "Tung Shing almanac, and solar terms. Supports lang parameter for output language. "
+            "For deep cultural terms, non-zh responses use translated or pinyin main fields and include *_py pinyin fields for reference."
+
         ),
     },
     "/public-china-holiday/holiday/query": {
@@ -223,7 +225,10 @@ DESC_ZH_TO_EN = {
     "状态码，200=成功": "Status code, 200=success",
     "响应消息": "Response message",
     "响应数据": "Response data",
+    "Pinyin field, available in all languages": "Pinyin field, available in all languages",
+    "Pinyin list, available in all languages": "Pinyin list, available in all languages",
 }
+
 
 # -- Schema title/description 翻译
 TITLE_ZH_TO_EN = {

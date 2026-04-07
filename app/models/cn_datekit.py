@@ -14,45 +14,67 @@ from pydantic import BaseModel, Field
 class GanZhiDetail(BaseModel):
     """天干地支详细信息（年月日柱）"""
     ganzhi: str = Field(description="干支，如 乙巳")
+    ganzhi_py: Optional[str] = Field(default=None, description="干支拼音，如 Yi Si")
     gan: str = Field(description="天干，如 乙")
+    gan_py: Optional[str] = Field(default=None, description="天干拼音，如 Yi")
     zhi: str = Field(description="地支，如 巳")
+    zhi_py: Optional[str] = Field(default=None, description="地支拼音，如 Si")
     nayin: str = Field(default="", description="纳音，如 佛灯火")
+    nayin_py: Optional[str] = Field(default=None, description="纳音拼音，如 Fo Deng Huo")
 
 
 class XingzuoDetail(BaseModel):
     """星座详细信息"""
     name: str = Field(description="星座中文名，如 天秤座")
+    name_py: Optional[str] = Field(default=None, description="星座拼音，如 Tian Cheng Zuo")
     name_en: str = Field(description="星座英文名，如 Libra")
     date_range: str = Field(description="日期范围，如 9.23-10.23")
     element: str = Field(description="元素，如 风象")
+    element_py: Optional[str] = Field(default=None, description="元素拼音")
     ruler: str = Field(description="守护星，如 金星")
+    ruler_py: Optional[str] = Field(default=None, description="守护星拼音")
 
 
 class AlmanacDetail(BaseModel):
     """黄历详细信息"""
     # -- 宜忌
     yi: list[str] = Field(default_factory=list, description="宜")
+    yi_py: Optional[list[str]] = Field(default=None, description="宜拼音列表")
     ji: list[str] = Field(default_factory=list, description="忌")
+    ji_py: Optional[list[str]] = Field(default=None, description="忌拼音列表")
     # -- 冲煞
     chong_gan: str = Field(default="", description="冲天干")
+    chong_gan_py: Optional[str] = Field(default=None, description="冲天干拼音")
     chong_zhi: str = Field(default="", description="冲地支")
+    chong_zhi_py: Optional[str] = Field(default=None, description="冲地支拼音")
     chong_shengxiao: str = Field(default="", description="冲生肖")
+    chong_shengxiao_py: Optional[str] = Field(default=None, description="冲生肖拼音")
     chong_desc: str = Field(default="", description="冲描述，如 (丁酉)鸡")
+    chong_desc_py: Optional[str] = Field(default=None, description="冲描述拼音")
     sha: str = Field(default="", description="煞方")
+    sha_py: Optional[str] = Field(default=None, description="煞方拼音")
     # -- 胎神
     taishen: str = Field(default="", description="胎神占方")
+    taishen_py: Optional[str] = Field(default=None, description="胎神占方拼音")
     # -- 五行纳音
     wuxing_nayin: str = Field(default="", description="五行纳音")
+    wuxing_nayin_py: Optional[str] = Field(default=None, description="五行纳音拼音")
     # -- 彭祖百忌
     pengzu: str = Field(default="", description="彭祖百忌")
+    pengzu_py: Optional[str] = Field(default=None, description="彭祖百忌拼音")
     # -- 吉神凶煞
     jishen: list[str] = Field(default_factory=list, description="吉神")
+    jishen_py: Optional[list[str]] = Field(default=None, description="吉神拼音列表")
     xiongsha: list[str] = Field(default_factory=list, description="凶煞")
+    xiongsha_py: Optional[list[str]] = Field(default=None, description="凶煞拼音列表")
     # -- 值星
     zhixing: str = Field(default="", description="建除十二值星")
+    zhixing_py: Optional[str] = Field(default=None, description="建除十二值星拼音")
     # -- 天神
     tianshen: str = Field(default="", description="值日天神")
+    tianshen_py: Optional[str] = Field(default=None, description="值日天神拼音")
     tianshen_type: str = Field(default="", description="天神类型")
+    tianshen_type_py: Optional[str] = Field(default=None, description="天神类型拼音")
     # -- 方位
     position_cai: str = Field(default="", description="财神方位")
     position_xi: str = Field(default="", description="喜神方位")
@@ -61,9 +83,13 @@ class AlmanacDetail(BaseModel):
     position_yingui: str = Field(default="", description="阴贵方位")
     # -- 其他
     liuyao: str = Field(default="", description="六曜")
+    liuyao_py: Optional[str] = Field(default=None, description="六曜拼音")
     wuhou: str = Field(default="", description="七十二候")
+    wuhou_py: Optional[str] = Field(default=None, description="七十二候拼音")
     xiu: str = Field(default="", description="二十八星宿")
+    xiu_py: Optional[str] = Field(default=None, description="二十八星宿拼音")
     xiu_luck: str = Field(default="", description="星宿吉凶")
+    xiu_luck_py: Optional[str] = Field(default=None, description="星宿吉凶拼音")
 
 
 class SolarTermItem(BaseModel):
@@ -88,6 +114,7 @@ class DateInfoResponse(BaseModel):
     lunar_date_cn: str = Field(description="农历日期中文，如 乙巳年八月初九")
     # -- 生肖
     shengxiao: str = Field(description="生肖，如 蛇")
+    shengxiao_py: Optional[str] = Field(default=None, description="生肖拼音，如 She")
     shengxiao_emoji: str = Field(default="", description="生肖 emoji")
     # -- 星座
     xingzuo: XingzuoDetail = Field(description="星座详细信息")

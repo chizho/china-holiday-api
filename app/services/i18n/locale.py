@@ -2,8 +2,9 @@
 翻译字典 - 所有语言翻译数据集中管理
 按 L1/L2/L3 分层策略：
   L1 通用文本 → zh/en/ja/ko/vi/es/fr/de
-  L2 东亚文化 → zh/ja/ko/vi（其余语言保留中文）
-  L3 不翻译 → 不在此字典中
+  L2 东亚文化 → zh/ja/ko/vi（其余语言优先走后续拼音兜底）
+  L3 深文化字段 → 不在此字典中，由上层翻译模块补 *_py 拼音兜底
+
 """
 SUPPORTED_LANGS = ["zh", "en", "ja", "ko", "vi", "es", "fr", "de"]
 
@@ -89,18 +90,19 @@ L1_COMMON = {
     "吉": {"en": "Auspicious",  "ja": "吉",   "ko": "길",   "vi": "Cát",   "es": "Auspicioso", "fr": "Auspice",       "de": "Günstig"},
     "凶": {"en": "Inauspicious","ja": "凶",   "ko": "흉",   "vi": "Hung",  "es": "Inauspicioso","fr": "Maléfique",     "de": "Ungünstig"},
     # -- 建除十二值星 (L1: 基本翻译)
-    "建": {"en": "Jian (Establish)", "ja": "建", "ko": "건(建)", "vi": "Kiến", "es": "Jian", "fr": "Jian", "de": "Jian"},
-    "除": {"en": "Chu (Remove)",    "ja": "除", "ko": "제(除)", "vi": "Trừ", "es": "Chu",  "fr": "Chu",  "de": "Chu"},
-    "满": {"en": "Man (Full)",      "ja": "満", "ko": "만(滿)", "vi": "Mãn", "es": "Man",  "fr": "Man",  "de": "Man"},
-    "平": {"en": "Ping (Peace)",    "ja": "平", "ko": "평(平)", "vi": "Bình", "es": "Ping", "fr": "Ping", "de": "Ping"},
-    "定": {"en": "Ding (Stable)",   "ja": "定", "ko": "정(定)", "vi": "Định", "es": "Ding", "fr": "Ding", "de": "Ding"},
-    "执": {"en": "Zhi (Hold)",      "ja": "執", "ko": "집(執)", "vi": "Trực", "es": "Zhi",  "fr": "Zhi",  "de": "Zhi"},
-    "破": {"en": "Po (Break)",      "ja": "破", "ko": "파(破)", "vi": "Phá",  "es": "Po",   "fr": "Po",   "de": "Po"},
-    "危": {"en": "Wei (Danger)",    "ja": "危", "ko": "위(危)", "vi": "Nguy", "es": "Wei",  "fr": "Wei",  "de": "Wei"},
-    "成": {"en": "Cheng (Success)",  "ja": "成", "ko": "성(成)", "vi": "Thành", "es": "Cheng","fr": "Cheng","de": "Cheng"},
-    "收": {"en": "Shou (Gather)",   "ja": "収", "ko": "수(收)", "vi": "Thu",  "es": "Shou", "fr": "Shou", "de": "Shou"},
-    "开": {"en": "Kai (Open)",      "ja": "開", "ko": "개(開)", "vi": "Khai", "es": "Kai",  "fr": "Kai",  "de": "Kai"},
-    "闭": {"en": "Bi (Close)",      "ja": "閉", "ko": "폐(閉)", "vi": "Bế",  "es": "Bi",   "fr": "Bi",   "de": "Bi"},
+    "建": {"en": "Jian (Establish)", "ja": "建", "ko": "건", "vi": "Kiến", "es": "Jian", "fr": "Jian", "de": "Jian"},
+    "除": {"en": "Chu (Remove)",    "ja": "除", "ko": "제", "vi": "Trừ", "es": "Chu",  "fr": "Chu",  "de": "Chu"},
+    "满": {"en": "Man (Full)",      "ja": "満", "ko": "만", "vi": "Mãn", "es": "Man",  "fr": "Man",  "de": "Man"},
+    "平": {"en": "Ping (Peace)",    "ja": "平", "ko": "평", "vi": "Bình", "es": "Ping", "fr": "Ping", "de": "Ping"},
+    "定": {"en": "Ding (Stable)",   "ja": "定", "ko": "정", "vi": "Định", "es": "Ding", "fr": "Ding", "de": "Ding"},
+    "执": {"en": "Zhi (Hold)",      "ja": "執", "ko": "집", "vi": "Trực", "es": "Zhi",  "fr": "Zhi",  "de": "Zhi"},
+    "破": {"en": "Po (Break)",      "ja": "破", "ko": "파", "vi": "Phá",  "es": "Po",   "fr": "Po",   "de": "Po"},
+    "危": {"en": "Wei (Danger)",    "ja": "危", "ko": "위", "vi": "Nguy", "es": "Wei",  "fr": "Wei",  "de": "Wei"},
+    "成": {"en": "Cheng (Success)",  "ja": "成", "ko": "성", "vi": "Thành", "es": "Cheng","fr": "Cheng","de": "Cheng"},
+    "收": {"en": "Shou (Gather)",   "ja": "収", "ko": "수", "vi": "Thu",  "es": "Shou", "fr": "Shou", "de": "Shou"},
+    "开": {"en": "Kai (Open)",      "ja": "開", "ko": "개", "vi": "Khai", "es": "Kai",  "fr": "Kai",  "de": "Kai"},
+    "闭": {"en": "Bi (Close)",      "ja": "閉", "ko": "폐", "vi": "Bế",  "es": "Bi",   "fr": "Bi",   "de": "Bi"},
+
 }
 
 # ================================================================

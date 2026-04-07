@@ -76,16 +76,17 @@ X-RapidAPI-Key: YOUR_API_KEY
 
 | 代码 | 语言 | 覆盖范围 |
 |------|------|---------|
-| `zh` | 中文 | 全字段翻译 |
-| `en` | 英文 | 假日名称、生肖、星座、节气、工作日、方位等 |
-| `ja` | 日语 | 假日名称、生肖、星座、节气、黄历宜忌、吉神凶煞、值星等 |
-| `ko` | 韩语 | 假日名称、生肖、星座、节气、黄历宜忌、吉神凶煞、值星等 |
-| `vi` | 越南语 | 假日名称、生肖、星座、节气、黄历宜忌、吉神凶煞、值星等 |
-| `es` | 西班牙语 | 假日名称、生肖、星座、节气、工作日等 |
-| `fr` | 法语 | 假日名称、生肖、星座、节气、工作日等 |
-| `de` | 德语 | 假日名称、生肖、星座、节气、工作日等 |
+| `zh` | 中文 | 原始中文输出，深文化字段统一补充 `*_py` 拼音 |
+| `en` | 英文 | 通用字段英文翻译；深文化字段优先英文，缺失时回退拼音 |
+| `ja` | 日语 | 通用字段日语翻译；深文化字段优先日语词典，缺失时回退拼音 |
+| `ko` | 韩语 | 通用字段韩语翻译；深文化字段优先韩语词典，缺失时回退拼音 |
+| `vi` | 越南语 | 通用字段越南语翻译；深文化字段优先越南语词典，缺失时回退拼音 |
+| `es` | 西班牙语 | 通用字段西语翻译；深文化字段提供拼音 |
+| `fr` | 法语 | 通用字段法语翻译；深文化字段提供拼音 |
+| `de` | 德语 | 通用字段德语翻译；深文化字段提供拼音 |
 
-> **翻译策略：** L1 通用文本（所有语言）+ L2 东亚文化特有词汇（ja/ko/vi）+ L3 不翻译（干支、纳音、彭祖百忌等中国传统术语）。
+> **翻译策略：** L1 通用文本直接翻译；L2 东亚文化词条优先词典翻译；L3 深文化字段（如干支、纳音、彭祖百忌、胎神、七十二候、二十八星宿等）在所有语言下统一采用"主字段按目标语言输出 + `*_py` 拼音参考"的结构。**同一接口在不同 `lang` 参数下返回的字段集合完全一致。**
+
 
 ### 错误码说明
 
@@ -194,66 +195,52 @@ GET /public-china-holiday/date?date=2025-10-01&lang=en
     "lunar_month_cn": "八月",
     "lunar_day_cn": "初九",
     "lunar_date_cn": "乙巳年八月初九",
-    "shengxiao": "蛇",
+    "shengxiao": "Snake",
     "shengxiao_emoji": "🐍",
     "xingzuo": {
-      "name": "天秤座",
+      "name": "Libra",
       "name_en": "Libra",
       "date_range": "9.23-10.23",
-      "element": "风象",
-      "ruler": "金星"
+      "element": "Air",
+      "ruler": "Venus"
     },
     "year_ganzhi": {
-      "ganzhi": "乙巳",
-      "gan": "乙",
-      "zhi": "巳",
-      "nayin": "佛灯火"
-    },
-    "month_ganzhi": {
-      "ganzhi": "乙酉",
-      "gan": "乙",
-      "zhi": "酉",
-      "nayin": "泉中水"
-    },
-    "day_ganzhi": {
-      "ganzhi": "丁丑",
-      "gan": "丁",
-      "zhi": "丑",
-      "nayin": "涧下水"
+      "ganzhi": "Yi Si",
+      "ganzhi_zh": "乙巳",
+      "gan": "Yi",
+      "gan_zh": "乙",
+      "zhi": "Si",
+      "zhi_zh": "巳",
+      "nayin": "Fu Deng Huo",
+      "nayin_zh": "覆灯火"
     },
     "almanac": {
-      "yi": ["祭祀", "出行", "冠笄", "嫁娶"],
-      "ji": ["开市", "动土", "破土"],
-      "chong_gan": "辛",
-      "chong_zhi": "未",
-      "chong_shengxiao": "羊",
-      "chong_desc": "(辛未)羊",
-      "sha": "东",
-      "taishen": "占门碓外东南",
-      "wuxing_nayin": "天河水",
-      "pengzu": "丁不剃头头必生疮，丑不冠带主不还乡",
-      "jishen": ["天德", "月德", "天恩"],
-      "xiongsha": ["月破", "大耗"],
-      "zhixing": "建",
-      "tianshen": "玄武",
-      "tianshen_type": "黑道",
-      "position_cai": "正东",
-      "position_xi": "西南",
-      "position_fu": "西北",
-      "position_yanggui": "正北",
-      "position_yingui": "东南",
-      "liuyao": "先胜",
-      "wuhou": "鸿雁来宾",
-      "xiu": "室",
-      "xiu_luck": "吉"
+      "yi": ["Ji Si", "Chu Xing", "Guan Ji", "Jia Qu"],
+      "yi_zh": ["祭祀", "出行", "冠笄", "嫁娶"],
+      "ji": ["Kai Shi", "Dong Tu", "Po Tu"],
+      "ji_zh": ["开市", "动土", "破土"],
+      "chong_desc": "(Xin Wei)Goat",
+      "chong_desc_zh": "(辛未)羊",
+      "sha": "East",
+      "sha_zh": "东",
+      "taishen": "Zhan Men Dui Wai Dong Nan",
+      "taishen_zh": "占门碓外东南",
+      "pengzu": "Ding Bu Ti Tou Tou Bi Sheng Chuang Chou Bu Guan Dai Zhu Bu Huan Xiang",
+      "pengzu_zh": "丁不剃头头必生疮，丑不冠带主不还乡",
+      "wuhou": "Hong Yan Lai Bin",
+      "wuhou_zh": "鸿雁来宾",
+      "xiu": "Shi",
+      "xiu_zh": "室",
+      "xiu_luck": "Auspicious",
+      "xiu_luck_zh": "吉"
     },
     "solar_term_prev": {
-      "name": "秋分",
+      "name": "Autumnal Equinox",
       "date": "2025-09-23",
       "is_jie": true
     },
     "solar_term_next": {
-      "name": "寒露",
+      "name": "Cold Dew",
       "date": "2025-10-08",
       "is_jie": false
     },
@@ -280,10 +267,12 @@ GET /public-china-holiday/date?date=2025-10-01&lang=en
 | `xingzuo.element` | string | 元素（风象/火象/土象/水象） |
 | `xingzuo.ruler` | string | 守护星 |
 | `year_ganzhi/month_ganzhi/day_ganzhi` | object | 年柱/月柱/日柱干支 |
-| `ganzhi` | string | 干支组合 |
-| `gan` | string | 天干 |
-| `zhi` | string | 地支 |
-| `nayin` | string | 纳音（五行纳音） |
+| `ganzhi` | string | 干支组合；非 `zh` 语言下主字段返回拼音 |
+| `gan` | string | 天干；非 `zh` 语言下主字段返回拼音 |
+| `zhi` | string | 地支；非 `zh` 语言下主字段返回拼音 |
+| `nayin` | string | 纳音（五行纳音）；非 `zh` 语言下主字段返回拼音 |
+| `*_zh` | string/string[] | 仅非 `zh` 语言返回的原始中文字段，用于保留中国传统术语原文 |
+
 | `almanac` | object | 黄历信息 |
 | `almanac.yi` | string[] | 宜 |
 | `almanac.ji` | string[] | 忌 |
